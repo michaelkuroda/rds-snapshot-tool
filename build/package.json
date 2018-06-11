@@ -1,0 +1,15 @@
+{
+  "name": "rds-snapshot-tool-builder",
+  "version": "1.0.0",
+  "description": "Autmoated builder of the artifacts for the rds-snapshot-tool",
+  "main": "index.js",
+  "dependencies": {
+    "bestzip": "^1.1.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "zip": "bestzip"
+  },
+  "author": "",
+  "license": "ISC"
+}
