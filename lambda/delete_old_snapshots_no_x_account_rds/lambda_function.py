@@ -8,7 +8,7 @@ Licensed under the Apache License, Version 2.0 (the "License"). You may not use 
 or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 '''
 
-# delete_old_snapshots_dest_rds
+# delete_old_snapshots_no_x_account_rds
 # This lambda function will delete manual snapshots that have expired in the region specified in the environment variable DEST_REGION, and according to the environment variables PATTERN and RETENTION_DAYS.
 # Set PATTERN to a regex that matches your Aurora cluster identifiers (by default: <instance_name>-cluster)
 # Set DEST_REGION to the destination AWS region

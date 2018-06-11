@@ -8,7 +8,7 @@ Licensed under the Apache License, Version 2.0 (the "License"). You may not use 
 or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 '''
 
-# copy_snapshots_no_x_account_
+# copy_snapshots_no_x_account_rds
 # This lambda function will copy source RDS snapshots that match the regex specified in the environment variable PATTERN into DEST_REGION. This function will need to run as many times necessary for the workflow to complete.
 # Set PATTERN to a regex that matches your RDS isntance identifiers 
 # Set DEST_REGION to the destination AWS region
