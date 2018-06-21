@@ -30,6 +30,8 @@ _KMS_KEY_DEST_REGION = os.getenv('KMS_KEY_DEST_REGION', 'None').strip()
 
 _KMS_KEY_SOURCE_REGION = os.getenv('KMS_KEY_SOURCE_REGION', 'None').strip()
 
+_SNAPSHOT_TAG = os.getenv('SNAPSHOT_TAG')
+
 _TIMESTAMP_FORMAT = '%Y-%m-%d-%H-%M'
 
 if os.getenv('REGION_OVERRIDE', 'NO') != 'NO':
@@ -90,10 +92,14 @@ def search_tag_copied(response):
 
 def get_own_snapshots_no_x_account(pattern, response, REGION):
     # Filters our own snapshots
+    searchPattern = pattern
+    if _SNAPSHOT_TAG:
+        searchPattern = '%s-%s' % (searchPattern, _SNAPSHOT_TAG)
+
     filtered = {}
     for snapshot in response['DBSnapshots']:
 
-        if snapshot['SnapshotType'] == 'manual' and re.search(pattern, snapshot['DBSnapshotIdentifier']) and snapshot['Engine'] in _SUPPORTED_ENGINES:
+        if snapshot['SnapshotType'] == 'manual' and re.search(searchPattern, snapshot['DBSnapshotIdentifier']) and snapshot['Engine'] in _SUPPORTED_ENGINES:
             client = boto3.client('rds', region_name=REGION)
             response_tags = client.list_tags_for_resource(
                 ResourceName=snapshot['DBSnapshotArn'])
@@ -116,9 +122,13 @@ def get_own_snapshots_no_x_account(pattern, response, REGION):
 
 def get_shared_snapshots(pattern, response):
 # Returns a dict with only shared snapshots filtered by pattern, with DBSnapshotIdentifier as key and the response as attribute
+    searchPattern = pattern
+    if _SNAPSHOT_TAG:
+        searchPattern = '%s-%s' % (searchPattern, _SNAPSHOT_TAG)
+
     filtered = {}
     for snapshot in response['DBSnapshots']:
-        if snapshot['SnapshotType'] == 'shared' and re.search(pattern, get_snapshot_identifier(snapshot)) and snapshot['Engine'] in _SUPPORTED_ENGINES:
+        if snapshot['SnapshotType'] == 'shared' and re.search(searchPattern, get_snapshot_identifier(snapshot)) and snapshot['Engine'] in _SUPPORTED_ENGINES:
             filtered[get_snapshot_identifier(snapshot)] = {
                 'Arn': snapshot['DBSnapshotIdentifier'], 'Encrypted': snapshot['Encrypted'], 'DBInstanceIdentifier': snapshot['DBInstanceIdentifier']}
             if snapshot['Encrypted'] is True:
@@ -142,10 +152,14 @@ def get_snapshot_identifier(snapshot):
 
 def get_own_snapshots_dest(pattern, response):
 # Returns a dict  with local snapshots, filtered by pattern, with DBSnapshotIdentifier as key and Arn, Status as attributes
+    searchPattern = pattern
+    if _SNAPSHOT_TAG:
+        searchPattern = '%s-%s' % (searchPattern, _SNAPSHOT_TAG)
+
     filtered = {}
     for snapshot in response['DBSnapshots']:
 
-        if snapshot['SnapshotType'] == 'manual' and re.search(pattern, snapshot['DBSnapshotIdentifier']) and snapshot['Engine'] in _SUPPORTED_ENGINES:
+        if snapshot['SnapshotType'] == 'manual' and re.search(searchPattern, snapshot['DBSnapshotIdentifier']) and snapshot['Engine'] in _SUPPORTED_ENGINES:
             filtered[snapshot['DBSnapshotIdentifier']] = {
                 'Arn': snapshot['DBSnapshotArn'], 'Status': snapshot['Status'], 'Encrypted': snapshot['Encrypted'], 'DBInstanceIdentifier': snapshot['DBInstanceIdentifier']}
 
@@ -181,10 +195,14 @@ def filter_instances(pattern, instance_list):
 
 def get_own_snapshots_source(pattern, response):
 # Filters our own snapshots
+    searchPattern = pattern
+    if _SNAPSHOT_TAG:
+        searchPattern = '%s-%s' % (searchPattern, _SNAPSHOT_TAG)
+
     filtered = {}
     for snapshot in response['DBSnapshots']:
 
-        if snapshot['SnapshotType'] == 'manual' and re.search(pattern, snapshot['DBSnapshotIdentifier']) and snapshot['Engine'] in _SUPPORTED_ENGINES:
+        if snapshot['SnapshotType'] == 'manual' and re.search(searchPattern, snapshot['DBSnapshotIdentifier']) and snapshot['Engine'] in _SUPPORTED_ENGINES:
             client = boto3.client('rds', region_name=_REGION)
             response_tags = client.list_tags_for_resource(
                 ResourceName=snapshot['DBSnapshotArn'])
@@ -207,7 +225,10 @@ def get_own_snapshots_source(pattern, response):
 
 def get_timestamp_no_minute(snapshot_identifier, snapshot_list):
 # Get a timestamp from the name of a snapshot and strip out the minutes
-    pattern = '%s-(.+)-\d{2}' % snapshot_list[snapshot_identifier]['DBInstanceIdentifier']
+    identifier = snapshot_list[snapshot_identifier]['DBInstanceIdentifier']
+    if _SNAPSHOT_TAG:
+        identifier = '%s-%s' % (identifier, _SNAPSHOT_TAG)
+    pattern = '%s-(.+)-\d{2}' % identifier
     timestamp_format = '%Y-%m-%d-%H'
     date_time = re.search(pattern, snapshot_identifier)
 
@@ -217,7 +238,10 @@ def get_timestamp_no_minute(snapshot_identifier, snapshot_list):
 
 def get_timestamp(snapshot_identifier, snapshot_list):
 # Searches for a timestamp on a snapshot name
-    pattern = '%s-(.+)' % snapshot_list[snapshot_identifier]['DBInstanceIdentifier']
+    identifier = snapshot_list[snapshot_identifier]['DBInstanceIdentifier']
+    if _SNAPSHOT_TAG:
+        identifier = '%s-%s' % (identifier, _SNAPSHOT_TAG)
+    pattern = '%s-(.+)' % identifier
     date_time = re.search(pattern, snapshot_identifier)
 
     if date_time is not None:

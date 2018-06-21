@@ -51,6 +51,11 @@
 			"AllowedValues": ["TRUE", "FALSE"],
 			"Default": "TRUE",
 			"Description": "Enable copying snapshots across accounts. Set to FALSE if your source snapshosts are not on a different account"
+		},
+		"SnapshotTag": {
+			"Type": "String",
+			"Default": "",
+			"Description": "Optional Tag to apply to snapshots taken."
 		}
 	},
 	"Conditions": {
@@ -322,6 +327,9 @@
 						},
 						"RETENTION_DAYS": {
 							"Ref": "RetentionDays"
+						},
+						"SNAPSHOT_TAG": {
+							"Ref": "SnapshotTag"
 						}
 					}
 				},
@@ -364,6 +372,9 @@
 						},
 						"LOG_LEVEL": {
 							"Ref": "LogLevel"
+						},
+						"SNAPSHOT_TAG": {
+							"Ref": "SnapshotTag"
 						}
 					}
 				},

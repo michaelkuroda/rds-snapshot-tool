@@ -69,10 +69,10 @@ def lambda_handler(event, context):
                         try:
                             copy_remote(source_identifier, own_snapshots_encryption[source_identifier])
                  
-                        except Exception:
+                        except Exception as e:
                             pending_copies += 1
-                            logger.error('Remote copy pending: %s: %s' % (
-                                source_identifier, source_snapshots[source_identifier]['Arn']))
+                            logger.error('Remote copy pending: %s: %s: error: %s' % (
+                                source_identifier, source_snapshots[source_identifier]['Arn'], e))
                     else:
                         pending_copies += 1
                         logger.error('Remote copy pending: %s: %s' % (
@@ -83,7 +83,7 @@ def lambda_handler(event, context):
         else: 
             logger.info('Not copying %s. No valid timestamp' % source_identifier)
     else: 
-	    logger.debug('No further snapshots found')
+        logger.debug('No further snapshots found')
 		
     if pending_copies > 0:
         log_message = 'Copies pending: %s. Needs retrying' % pending_copies

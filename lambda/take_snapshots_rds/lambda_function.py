@@ -25,6 +25,7 @@ from snapshots_tool_utils import *
 LOGLEVEL = os.getenv('LOG_LEVEL').strip()
 BACKUP_INTERVAL = int(os.getenv('INTERVAL', '24'))
 PATTERN = os.getenv('PATTERN', 'ALL_INSTANCES')
+SNAPSHOT_TAG = os.getenv('SNAPSHOT_TAG')
 
 if os.getenv('REGION_OVERRIDE', 'NO') != 'NO':
     REGION = os.getenv('REGION_OVERRIDE').strip()
@@ -64,17 +65,27 @@ def lambda_handler(event, context):
                 logger.info('Backing up %s. No previous backup found' %
                             db_instance['DBInstanceIdentifier'])
 
-            snapshot_identifier = '%s-%s' % (
-                db_instance['DBInstanceIdentifier'], timestamp_format)
+            if SNAPSHOT_TAG:
+                snapshot_identifier = '%s-%s-%s' % (
+                    db_instance['DBInstanceIdentifier'], SNAPSHOT_TAG, timestamp_format)
+            else:
+                snapshot_identifier = '%s-%s' % (
+                    db_instance['DBInstanceIdentifier'], timestamp_format)
 
             try:
+                tags = [{'Key': 'CreatedBy', 'Value': 'Snapshot Tool for RDS'},
+                        {'Key': 'CreatedOn', 'Value': timestamp_format}, {'Key': 'shareAndCopy', 'Value': 'YES'}]
+
+                if tags:
+                    tags.append({'Key': 'SnapshotTag', 'Value': SNAPSHOT_TAG})
+
                 response = client.create_db_snapshot(
                     DBSnapshotIdentifier=snapshot_identifier,
                     DBInstanceIdentifier=db_instance['DBInstanceIdentifier'],
-                    Tags=[{'Key': 'CreatedBy', 'Value': 'Snapshot Tool for RDS'}, {
-                        'Key': 'CreatedOn', 'Value': timestamp_format}, {'Key': 'shareAndCopy', 'Value': 'YES'}]
+                    Tags=tags
                 )
-            except Exception:
+            except Exception as e:
+                logger.error('Failed to create snapshot: %s' % e)
                 pending_backups += 1
         else:
 

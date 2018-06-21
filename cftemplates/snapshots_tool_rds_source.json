@@ -51,6 +51,11 @@
 			"Default": "TRUE",
 			"Description": "Set to TRUE to enable deletion of snapshot based on RetentionDays. Set to FALSE to disable",
 			"AllowedValues": ["TRUE", "FALSE"]
+		},
+		"SnapshotTag": {
+			"Type": "String",
+			"Default": "",
+			"Description": "Optional Tag to apply to snapshots taken."
 		}
 	},
 	"Conditions": {
@@ -307,6 +312,9 @@
 						},
 						"REGION_OVERRIDE": {
 							"Ref": "SourceRegionOverride"
+						},
+						"SNAPSHOT_TAG": {
+							"Ref": "SnapshotTag"
 						}
 					}
 				},
@@ -349,6 +357,9 @@
 						},
 						"REGION_OVERRIDE": {
 							"Ref": "SourceRegionOverride"
+						},
+						"SNAPSHOT_TAG": {
+							"Ref": "SnapshotTag"
 						}
 					}
 				},
@@ -391,6 +402,9 @@
 						},
 						"REGION_OVERRIDE": {
 							"Ref": "SourceRegionOverride"
+						},
+						"SNAPSHOT_TAG": {
+							"Ref": "SnapshotTag"
 						}
 					}
 				},

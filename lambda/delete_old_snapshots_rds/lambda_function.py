@@ -60,12 +60,15 @@ def lambda_handler(event, context):
                     client.delete_db_snapshot(
                         DBSnapshotIdentifier=snapshot)
 
-                except Exception:
+                except Exception as e:
                     pending_delete += 1
-                    logger.info('Could not delete %s ' % snapshot)
+                    logger.error('Could not delete %s: error: %s' % (snapshot, e))
+
+            else:
+                logger.info('Not deleting %s. Created only %s' % (snapshot, days_difference))
 
         else: 
-            logger.info('Not deleting %s. Created only %s' % (snapshot, days_difference))
+            logger.info('Not deleting %s, could not get creation date' % snapshot)
 
 
     if pending_delete > 0:

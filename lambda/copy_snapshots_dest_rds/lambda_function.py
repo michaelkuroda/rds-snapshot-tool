@@ -66,9 +66,9 @@ def lambda_handler(event, context):
                     try:
                         copy_local(shared_identifier, shared_attributes)
 
-                    except Exception:
+                    except Exception as e:
                         pending_copies += 1
-                        logger.error('Local copy pending: %s' % shared_identifier)
+                        logger.error('Local copy pending: %s error: %s' % (shared_identifier, e))
 
                     else:
                         if REGION != DESTINATION_REGION:
